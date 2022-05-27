@@ -1,7 +1,7 @@
 log_level = "TRACE"
 
-plugin "hello-driver" {
+plugin "spin" {
   config {
-    shell = "bash"
+    path = "spin"
   }
 }

@@ -1,4 +1,4 @@
-package hello
+package spin
 
 import (
 	"context"
@@ -27,9 +27,7 @@ type taskHandle struct {
 	startedAt    time.Time
 	completedAt  time.Time
 	exitResult   *drivers.ExitResult
-
-	// TODO: add any extra relevant information about the task.
-	pid int
+	pid          int
 }
 
 func (h *taskHandle) TaskStatus() *drivers.TaskStatus {
@@ -62,7 +60,6 @@ func (h *taskHandle) run() {
 	}
 	h.stateLock.Unlock()
 
-	// TODO: wait for your task to complete and upate its state.
 	ps, err := h.exec.Wait(context.Background())
 	h.stateLock.Lock()
 	defer h.stateLock.Unlock()
