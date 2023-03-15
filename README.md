@@ -15,12 +15,39 @@ Building the Plugin
 $ make build
 ```
 
+## Setup Bindle Server
+Clone Fermyon fork of Bindle and checkout tag 0.8.2
+
+```sh
+$ git clone https://github.com/fermyon/bindle
+$ cd bindle
+$ git checkout tags/0.8.2
+```
+
+Make and run Bindle server
+
+```sh
+$ make
+$ target/debug/bindle-server --unauthenticated
+```
+
+Bindle images can now be pushed to this server
+
+```sh
+$ spin bindle push --bindle-server http://localhost:8081/v1
+
 ## Deploying Driver Plugins in Nomad
+Build and plugin and start Nomad server.
 
 ```sh
 $ make build
 $ nomad agent -dev -config=./example/agent.hcl -plugin-dir=$PWD
+```
 
+
+Modify the example/example.nomad file to use the appropriate Bindle server and Bindle image id, then run the job in Nomad.
+
+```sh
 # in another shell
 $ nomad run ./example/example.nomad
 $ nomad logs <ALLOCATION ID>
