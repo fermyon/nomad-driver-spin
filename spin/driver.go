@@ -72,9 +72,10 @@ var (
 	// This is used to validated the configuration specified for the
 	// plugin when a job is submitted.
 	taskConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
-		"bindle_id":  hclspec.NewAttr("bindle_id", "string", true),
-		"bindle_url": hclspec.NewAttr("bindle_url", "string", true),
+		"bindle_id":  hclspec.NewAttr("bindle_id", "string", false),
+		"bindle_url": hclspec.NewAttr("bindle_url", "string", false),
 		"listen":     hclspec.NewAttr("listen", "string", true),
+		"file":       hclspec.NewAttr("file", "string", false),
 		"log_dir":    hclspec.NewAttr("log_dir", "string", false),
 		"env":        hclspec.NewAttr("env", "list(map(string))", false),
 		// cache
@@ -109,6 +110,7 @@ type Config struct {
 // TaskConfig contains configuration information for a task that runs with
 // this plugin
 type TaskConfig struct {
+	File      string             `codec:"file"`
 	BindleID  string             `codec:"bindle_id"`
 	BindleURL string             `codec:"bindle_url"`
 	Listen    string             `codec:"listen"`
@@ -295,16 +297,25 @@ func (d *Driver) StartTask(cfg *drivers.TaskConfig) (*drivers.TaskHandle, *drive
 
 	user := cfg.User
 	if user == "" {
-		user = "nobody"
+		user = "nomad"
 	}
 
 	args := []string{
 		"up",
 		"--listen", driverConfig.Listen,
-		"--bindle", driverConfig.BindleID,
-		"--bindle-server", driverConfig.BindleURL,
 		"--log-dir", driverConfig.LogDir,
 		"--temp", filepath.Join(cfg.TaskDir().AllocDir, "tmp"),
+	}
+	if len(driverConfig.File) != 0 {
+		args = append(args, "--file", driverConfig.File)
+	}
+
+	if len(driverConfig.BindleID) != 0 {
+		args = append(args, "--bindle", driverConfig.BindleID)
+	}
+
+	if len(driverConfig.BindleURL) != 0 {
+		args = append(args, "--bindle-server", driverConfig.BindleURL)
 	}
 
 	for k, v := range driverConfig.Env {
